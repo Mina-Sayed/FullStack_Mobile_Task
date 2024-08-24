@@ -5,6 +5,9 @@ import path from 'path';
 import { config } from './config';
 import cors from 'cors';
 
+/**
+ * Express application instance.
+ */
 const app = express();
 
 app.use(cors())

@@ -4,6 +4,9 @@ import { upload } from '../middlewares/uploadMiddleware';
 import { validatePhoto } from '../middlewares/validatePhoto';
 import { requestLogger } from '../middlewares/requestLogger';
 
+/**
+ * Express router for handling photo routes.
+ */
 const router = express.Router();
 
 // Apply request logging middleware globally

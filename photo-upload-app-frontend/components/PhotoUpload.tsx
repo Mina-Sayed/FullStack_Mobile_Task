@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { View, Button, Image, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
+/**
+ * Component for uploading and displaying photos.
+ */
 const PhotoUpload = () => {
   const [image, setImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);

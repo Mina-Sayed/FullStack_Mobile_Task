@@ -12,6 +12,9 @@ export default function App() {
   );
 }
 
+/**
+ * Styles for the container component.
+ */
 const styles = StyleSheet.create({
   container: {
     flex: 1,

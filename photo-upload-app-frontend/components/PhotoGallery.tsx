@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Image, StyleSheet, Text } from 'react-native';
 
+/**
+ * Renders a photo gallery component.
+ *
+ * @returns The rendered photo gallery component.
+ */
 const PhotoGallery = () => {
   const [photos, setPhotos] = useState<any[]>([]); // Initially set to an empty array
   const [error, setError] = useState<string | null>(null);

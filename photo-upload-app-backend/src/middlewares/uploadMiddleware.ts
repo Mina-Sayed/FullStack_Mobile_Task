@@ -8,6 +8,14 @@ const storage = multer.diskStorage({
   },
 });
 
+/**
+ * Middleware function for filtering uploaded files.
+ * 
+ * @param req - The request object.
+ * @param file - The uploaded file object.
+ * @param cb - The callback function.
+ * @returns A callback function with an error or a boolean value indicating whether the file is allowed.
+ */
 const fileFilter = (req: any, file: any, cb: any) => {
   const ext = path.extname(file.originalname).toLowerCase();
   if (!['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {

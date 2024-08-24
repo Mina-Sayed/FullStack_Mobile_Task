@@ -1,3 +1,6 @@
+/**
+ * Represents a photo object.
+ */
 export interface Photo {
   filename: string;
   path: string;

@@ -20,6 +20,12 @@ export const uploadPhoto = (req: Request, res: Response): void => {
   }
 };
 
+/**
+ * Browse photos in the specified directory.
+ * 
+ * @param req - The request object.
+ * @param res - The response object.
+ */
 export const browsePhotos = (req: Request, res: Response): void => {
   fs.readdir(UPLOADS_DIR, (err, files) => {
     if (err) {
