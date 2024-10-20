@@ -1,6 +1,4 @@
-﻿Here's the markdown version of your document:
 
-```markdown
 
 # Photo Upload App
 
