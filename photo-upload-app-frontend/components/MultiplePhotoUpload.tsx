@@ -2,19 +2,17 @@ import React, { useState } from 'react';
 import { View, Button, Image, StyleSheet, Text, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
-/**
- * Component for uploading and displaying photos.
- */
-const PhotoUpload = () => {
-  const [image, setImage] = useState<string | null>(null);
+const MultiplePhotoUpload = () => {
+  const [images, setImages] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const pickImage = async () => {
+  const pickImages = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
@@ -22,25 +20,27 @@ const PhotoUpload = () => {
 
       if (!result.canceled) {
         const successResult = result as ImagePicker.ImagePickerSuccessResult;
-        setImage(successResult.assets[0].uri);
+        setImages(successResult.assets.map(asset => asset.uri));
         setError(null);
         setSuccess(null);
       }
     } catch (err) {
-      setError('Failed to pick image.');
+      setError('Failed to pick images.');
       console.error(err);
     }
   };
 
-  const uploadImage = async () => {
-    if (!image) return;
+  const uploadImages = async () => {
+    if (images.length === 0) return;
 
     const formData = new FormData();
-    formData.append('photo', {
-      uri: image,
-      name: 'photo.jpg',
-      type: 'image/jpeg',
-    } as any);
+    images.forEach((image, index) => {
+      formData.append('photos', {
+        uri: image,
+        name: `photo${index}.jpg`,
+        type: 'image/jpeg',
+      } as any);
+    });
 
     setLoading(true);
     try {
@@ -50,15 +50,15 @@ const PhotoUpload = () => {
       });
 
       if (response.ok) {
-        Alert.alert('Success', 'Photo uploaded successfully!');
-        setImage(null);
+        Alert.alert('Success', 'Photos uploaded successfully!');
+        setImages([]);
         setError(null);
-        setSuccess('Photo uploaded successfully!');
+        setSuccess('Photos uploaded successfully!');
       } else {
-        setError('Failed to upload photo.');
+        setError('Failed to upload photos.');
       }
     } catch (err) {
-      setError('An error occurred while uploading the photo.');
+      setError('An error occurred while uploading the photos.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -67,14 +67,18 @@ const PhotoUpload = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Photo Upload</Text>
-      <TouchableOpacity style={styles.button} onPress={pickImage}>
-        <Text style={styles.buttonText}>Pick an image from camera roll</Text>
+      <Text style={styles.title}>Multiple Photo Upload</Text>
+      <TouchableOpacity style={styles.button} onPress={pickImages}>
+        <Text style={styles.buttonText}>Pick images from camera roll</Text>
       </TouchableOpacity>
-      {image && <Image source={{ uri: image }} style={styles.image} />}
-      {image && (
-        <TouchableOpacity style={styles.button} onPress={uploadImage}>
-          <Text style={styles.buttonText}>Upload Image</Text>
+      <View style={styles.imageContainer}>
+        {images.map((image, index) => (
+          <Image key={index} source={{ uri: image }} style={styles.image} />
+        ))}
+      </View>
+      {images.length > 0 && (
+        <TouchableOpacity style={styles.button} onPress={uploadImages}>
+          <Text style={styles.buttonText}>Upload Images</Text>
         </TouchableOpacity>
       )}
       {loading && <ActivityIndicator size="large" color="#0000ff" />}
@@ -107,10 +111,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
   },
-  image: {
-    width: 200,
-    height: 200,
+  imageContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
     marginVertical: 20,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    margin: 5,
+    borderRadius: 10,
   },
   errorText: {
     color: 'red',
@@ -122,4 +133,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PhotoUpload;
+export default MultiplePhotoUpload;

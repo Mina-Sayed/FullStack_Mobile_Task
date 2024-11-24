@@ -21,12 +21,17 @@ export const uploadPhoto = (req: Request, res: Response): void => {
 };
 
 /**
- * Browse photos in the specified directory.
+ * Browse photos in the specified directory with pagination.
  * 
  * @param req - The request object.
  * @param res - The response object.
  */
 export const browsePhotos = (req: Request, res: Response): void => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
   fs.readdir(UPLOADS_DIR, (err, files) => {
     if (err) {
       res.status(500).json({ message: 'Unable to scan directory!' });
@@ -40,7 +45,28 @@ export const browsePhotos = (req: Request, res: Response): void => {
           url: `${req.protocol}://${req.get('host')}/uploads/${filename}`,
         };
       });
-      res.status(200).json({ photos });
+
+      const paginatedPhotos = photos.slice(startIndex, endIndex);
+      res.status(200).json({ photos: paginatedPhotos, total: photos.length, page, limit });
+    }
+  });
+};
+
+/**
+ * Delete a photo by filename.
+ * 
+ * @param req - The request object.
+ * @param res - The response object.
+ */
+export const deletePhoto = (req: Request, res: Response): void => {
+  const { filename } = req.params;
+  const filePath = path.join(UPLOADS_DIR, filename);
+
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      res.status(500).json({ message: 'Unable to delete file!' });
+    } else {
+      res.status(200).json({ message: 'File deleted successfully!' });
     }
   });
 };
