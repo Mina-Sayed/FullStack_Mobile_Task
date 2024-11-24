@@ -1,5 +1,5 @@
 import express from 'express';
-import { uploadPhoto, browsePhotos } from '../controllers/photoController';
+import { uploadPhoto, browsePhotos, deletePhoto } from '../controllers/photoController';
 import { upload } from '../middlewares/uploadMiddleware';
 import { validatePhoto } from '../middlewares/validatePhoto';
 import { requestLogger } from '../middlewares/requestLogger';
@@ -17,5 +17,8 @@ router.post('/upload', upload.single('photo'), validatePhoto, uploadPhoto);
 
 // Browse photos without middleware, as it's a simple GET request
 router.get('/browse', browsePhotos);
+
+// Add route to delete a photo by filename
+router.delete('/:filename', deletePhoto);
 
 export default router;
