@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Button, Image, StyleSheet, Text, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Button, Image, StyleSheet, Text, TouchableOpacity, Alert, ActivityIndicator, ProgressBarAndroid } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 /**
@@ -10,6 +10,7 @@ const PhotoUpload = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
 
   const pickImage = async () => {
     try {
@@ -35,34 +36,59 @@ const PhotoUpload = () => {
   const uploadImage = async () => {
     if (!image) return;
 
-    const formData = new FormData();
-    formData.append('photo', {
-      uri: image,
-      name: 'photo.jpg',
-      type: 'image/jpeg',
-    } as any);
+    Alert.alert(
+      'Confirm Upload',
+      'Are you sure you want to upload this image?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Upload',
+          onPress: async () => {
+            const formData = new FormData();
+            formData.append('photo', {
+              uri: image,
+              name: 'photo.jpg',
+              type: 'image/jpeg',
+            } as any);
 
-    setLoading(true);
-    try {
-      const response = await fetch('http://localhost:5000/api/photos/upload', {
-        method: 'POST',
-        body: formData,
-      });
+            setLoading(true);
+            setUploadProgress(0);
+            try {
+              const response = await fetch('http://localhost:5000/api/photos/upload', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+                onUploadProgress: (progressEvent) => {
+                  const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                  setUploadProgress(progress);
+                },
+              });
 
-      if (response.ok) {
-        Alert.alert('Success', 'Photo uploaded successfully!');
-        setImage(null);
-        setError(null);
-        setSuccess('Photo uploaded successfully!');
-      } else {
-        setError('Failed to upload photo.');
-      }
-    } catch (err) {
-      setError('An error occurred while uploading the photo.');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+              if (response.ok) {
+                Alert.alert('Success', 'Photo uploaded successfully!');
+                setImage(null);
+                setError(null);
+                setSuccess('Photo uploaded successfully!');
+              } else {
+                setError('Failed to upload photo.');
+              }
+            } catch (err) {
+              setError('An error occurred while uploading the photo.');
+              console.error(err);
+            } finally {
+              setLoading(false);
+              setUploadProgress(0);
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   return (
@@ -78,6 +104,7 @@ const PhotoUpload = () => {
         </TouchableOpacity>
       )}
       {loading && <ActivityIndicator size="large" color="#0000ff" />}
+      {loading && <ProgressBarAndroid styleAttr="Horizontal" indeterminate={false} progress={uploadProgress / 100} />}
       {error && <Text style={styles.errorText}>{error}</Text>}
       {success && <Text style={styles.successText}>{success}</Text>}
     </View>
