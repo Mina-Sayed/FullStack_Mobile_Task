@@ -14,6 +14,7 @@ const createPhotoObject = (req: Request, filename: string): Photo => {
     mimetype: 'image/jpeg', // or infer from the file extension
     size: fs.statSync(path.join(UPLOADS_DIR, filename)).size,
     url: `${req.protocol}://${req.get('host')}/uploads/${filename}`,
+    description: '', // Initialize with an empty description
   };
 };
 
@@ -42,7 +43,7 @@ export const browsePhotos = async (req: Request, res: Response): Promise<void> =
     const paginatedPhotos = photos.slice(startIndex, endIndex);
     res.status(200).json({ photos: paginatedPhotos, total: photos.length, page, limit });
   } catch (err) {
-    logError(err);
+    logError(err as Error);
     res.status(500).json({ message: 'Unable to scan directory!' });
   }
 };
